@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Column, ColumnSettings } from '../types/column';
 
 interface ColumnContextType {
@@ -10,15 +10,24 @@ interface ColumnContextType {
 
 const ColumnContext = createContext<ColumnContextType | undefined>(undefined);
 
+const STORAGE_KEY = 'mastofy-columns';
+
 function generateId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
 export function ColumnProvider({ children }: { children: ReactNode }) {
-  const [columns, setColumns] = useState<Column[]>([
-    { id: generateId(), type: 'home', title: 'Home' },
-    { id: generateId(), type: 'notifications', title: 'Notifications' },
-  ]);
+  const [columns, setColumns] = useState<Column[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [
+      { id: generateId(), type: 'home', title: 'Home' },
+      { id: generateId(), type: 'notifications', title: 'Notifications' },
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(columns));
+  }, [columns]);
 
   const addColumn = (column: Omit<Column, 'id'>) => {
     setColumns(prev => [...prev, { ...column, id: generateId() }]);
