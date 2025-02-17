@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useColumns } from '../contexts/ColumnContext';
 import TimelineColumn from '../components/TimelineColumn';
 import { ColumnType } from '../types/column';
 
 export default function HomePage() {
-  const { columns, addColumn, moveColumn } = useColumns();
+  const { columns, addColumn } = useColumns();
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnType, setNewColumnType] = useState<ColumnType>('home');
   const [hashtag, setHashtag] = useState('');
@@ -27,47 +26,26 @@ export default function HomePage() {
     setHashtag('');
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-
-    moveColumn(result.source.index, result.destination.index);
-  };
-
   return (
     <div className="home-page">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="columns" direction="horizontal">
-          {(provided) => (
-            <div
-              className="columns-container"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {columns.map((column, index) => (
-                <Draggable key={column.id} draggableId={column.id} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <TimelineColumn column={column} />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-              
-              <button 
-                className="add-column-button"
-                onClick={() => setIsAddingColumn(true)}
-              >
-                + Add Column
-              </button>
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <div className="columns-container">
+        {columns.map((column, index) => (
+          <TimelineColumn 
+            key={column.id} 
+            column={column}
+            index={index}
+            isFirst={index === 0}
+            isLast={index === columns.length - 1}
+          />
+        ))}
+        
+        <button 
+          className="add-column-button"
+          onClick={() => setIsAddingColumn(true)}
+        >
+          + Add Column
+        </button>
+      </div>
 
       {isAddingColumn && (
         <div className="add-column-modal">

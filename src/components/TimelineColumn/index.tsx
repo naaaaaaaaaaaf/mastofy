@@ -7,11 +7,14 @@ import { Status, Notification } from '../../types/timeline';
 
 interface ColumnProps {
   column: Column;
+  index: number;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
 const UPDATE_INTERVAL = 30000; // 30秒ごとに更新
 
-export default function TimelineColumn({ column }: ColumnProps) {
+export default function TimelineColumn({ column, index, isFirst, isLast }: ColumnProps) {
   const [items, setItems] = useState<(Status | Notification)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +23,7 @@ export default function TimelineColumn({ column }: ColumnProps) {
     return saved === 'true';
   });
   const { auth } = useAuth();
-  const { removeColumn } = useColumns();
+  const { removeColumn, moveColumn } = useColumns();
 
   const fetchData = useCallback(async () => {
     if (!auth.accessToken || !auth.instance) return;
@@ -87,6 +90,18 @@ export default function TimelineColumn({ column }: ColumnProps) {
     setIsPinned(!isPinned);
   };
 
+  const handleMoveLeft = () => {
+    if (!isFirst) {
+      moveColumn(index, index - 1);
+    }
+  };
+
+  const handleMoveRight = () => {
+    if (!isLast) {
+      moveColumn(index, index + 1);
+    }
+  };
+
   const renderItem = (item: Status | Notification) => {
     if ('type' in item && item.type) {
       // Notification
@@ -142,8 +157,28 @@ export default function TimelineColumn({ column }: ColumnProps) {
     <div className={`timeline-column ${isPinned ? 'pinned' : ''}`}>
       <div className="column-header">
         <div className="column-header-content">
-          <h2>{column.title}</h2>
+          <div className="column-title">
+            <h2>{column.title}</h2>
+          </div>
           <div className="column-actions">
+            {!isFirst && (
+              <button 
+                className="move-button"
+                onClick={handleMoveLeft}
+                title="Move Left"
+              >
+                ◀
+              </button>
+            )}
+            {!isLast && (
+              <button 
+                className="move-button"
+                onClick={handleMoveRight}
+                title="Move Right"
+              >
+                ▶
+              </button>
+            )}
             <button 
               className={`pin-button ${isPinned ? 'active' : ''}`}
               onClick={handleTogglePin}

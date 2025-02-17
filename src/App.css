@@ -330,20 +330,32 @@
 .column-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
+.move-button,
 .pin-button,
 .remove-button {
   background: none;
   border: none;
   color: #9baec8;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  font-size: 14px;
+}
+
+.move-button {
+  color: #9baec8;
+}
+
+.move-button:hover {
+  background-color: #444b5d;
+  color: #fff;
 }
 
 .pin-button:hover,
