@@ -15,6 +15,11 @@ export interface Status {
     previewUrl: string;
   }[];
   reblog: Status | null;
+  // リアクション関連のフィールドを追加
+  favorited: boolean;
+  reblogged: boolean;
+  favouritesCount: number;
+  reblogsCount: number;
 }
 
 export interface Notification {

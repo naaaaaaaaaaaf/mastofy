@@ -4,6 +4,8 @@ import { useColumns } from '../../contexts/ColumnContext';
 import { createClient, getHomeTimeline, getLocalTimeline, getPublicTimeline, getNotifications, getHashtagTimeline } from '../../services/mastodon';
 import { Column } from '../../types/column';
 import { Status, Notification } from '../../types/timeline';
+import ComposeForm from '../ComposeForm';
+import StatusItem from '../StatusItem';
 
 interface ColumnProps {
   column: Column;
@@ -25,10 +27,10 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
   const { auth } = useAuth();
   const { removeColumn, moveColumn } = useColumns();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isUpdate = false) => {
     if (!auth.accessToken || !auth.instance) return;
 
-    setIsLoading(true);
+    setIsLoading(!isUpdate); // 更新時はローディング表示しない
     setError(null);
 
     try {
@@ -55,7 +57,23 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
           break;
       }
 
-      setItems(data);
+      // 新しい投稿が上に来るように並び替え
+      const sortedData = data.sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      });
+
+      if (isUpdate) {
+        // 更新時は既存のアイテムと統合
+        setItems(prev => {
+          const existingIds = new Set(prev.map(item => item.id));
+          const newItems = sortedData.filter(item => !existingIds.has(item.id));
+          return [...newItems, ...prev];
+        });
+      } else {
+        setItems(sortedData);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
       console.error('Failed to fetch timeline:', err);
@@ -67,8 +85,8 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
   useEffect(() => {
     fetchData();
     
-    // 定期的な更新の設定
-    const intervalId = setInterval(fetchData, UPDATE_INTERVAL);
+    // より頻繁な更新のために間隔を短くする
+    const intervalId = setInterval(() => fetchData(true), 10000); // 10秒ごとに更新
 
     return () => {
       clearInterval(intervalId);
@@ -102,6 +120,25 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
     }
   };
 
+  const updateStatus = (updatedStatus: Status) => {
+    setItems(prevItems =>
+      prevItems.map(item => {
+        if ('type' in item) {
+          // 通知の場合、通知内のステータスも更新
+          return item.status?.id === updatedStatus.id
+            ? { ...item, status: updatedStatus }
+            : item;
+        }
+        // 通常の投稿の場合
+        return item.id === updatedStatus.id ? updatedStatus : item;
+      })
+    );
+  };
+
+  const handleNewStatus = (status: Status) => {
+    setItems(prev => [status, ...prev]);
+  };
+
   const renderItem = (item: Status | Notification) => {
     if ('type' in item && item.type) {
       // Notification
@@ -114,42 +151,13 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
               <span className="username">@{item.account.username}</span>
             </div>
             <span className="notification-type">{item.type}</span>
-            {item.status && (
-              <div className="status-content">
-                <p dangerouslySetInnerHTML={{ __html: item.status.content }} />
-                {item.status.mediaAttachments.length > 0 && (
-                  <div className="media-attachments">
-                    {item.status.mediaAttachments.map(media => (
-                      <img key={media.id} src={media.previewUrl} alt="" className="media-preview" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            {item.status && <StatusItem status={item.status} onStatusUpdate={updateStatus} />}
           </div>
         </div>
       );
     } else {
       // Status
-      return (
-        <div key={item.id} className="status-item">
-          <img src={item.account.avatarUrl} alt={item.account.username} className="avatar" />
-          <div className="status-content">
-            <div className="display-name-container">
-              <span className="display-name">{item.account.displayName}</span>
-              <span className="username">@{item.account.username}</span>
-            </div>
-            <p dangerouslySetInnerHTML={{ __html: item.content }} />
-            {item.mediaAttachments.length > 0 && (
-              <div className="media-attachments">
-                {item.mediaAttachments.map(media => (
-                  <img key={media.id} src={media.previewUrl} alt="" className="media-preview" />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      );
+      return <StatusItem status={item} onStatusUpdate={updateStatus} />;
     }
   };
 
@@ -197,6 +205,7 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
         </div>
       </div>
       <div className="column-content">
+        {column.type === 'home' && <ComposeForm onStatusPosted={handleNewStatus} />}
         {isLoading && <div className="loading">Loading...</div>}
         {error && <div className="error">{error}</div>}
         <div className="items-list">

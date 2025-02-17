@@ -82,6 +82,11 @@ function convertStatus(status: any): Status {
       previewUrl: media.preview_url,
     })),
     reblog: status.reblog ? convertStatus(status.reblog) : null,
+    // Add reaction fields
+    favorited: status.favourited || false,
+    reblogged: status.reblogged || false,
+    favouritesCount: status.favourites_count || 0,
+    reblogsCount: status.reblogs_count || 0,
   };
 }
 
@@ -123,4 +128,58 @@ export async function getNotifications(client: MegalodonInterface): Promise<Noti
 export async function getHashtagTimeline(client: MegalodonInterface, hashtag: string): Promise<Status[]> {
   const response = await client.getTagTimeline(hashtag);
   return response.data.map(convertStatus);
+}
+
+export async function postStatus(
+  client: MegalodonInterface,
+  content: string,
+  mediaIds: string[] = [],
+): Promise<Status> {
+  const response = await client.postStatus(content, {
+    visibility: 'public', // デフォルトの公開範囲を追加
+    media_ids: mediaIds,
+  });
+  return convertStatus(response.data);
+}
+
+export async function uploadMedia(
+  client: MegalodonInterface,
+  file: File,
+): Promise<{ id: string; url: string; preview_url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await client.uploadMedia(formData);
+  return response.data;
+}
+
+export async function favoriteStatus(
+  client: MegalodonInterface,
+  statusId: string,
+): Promise<Status> {
+  const response = await client.favourite(statusId);
+  return convertStatus(response.data);
+}
+
+export async function unfavoriteStatus(
+  client: MegalodonInterface,
+  statusId: string,
+): Promise<Status> {
+  const response = await client.unfavourite(statusId);
+  return convertStatus(response.data);
+}
+
+export async function boostStatus(
+  client: MegalodonInterface,
+  statusId: string,
+): Promise<Status> {
+  const response = await client.reblog(statusId);
+  return convertStatus(response.data);
+}
+
+export async function unboostStatus(
+  client: MegalodonInterface,
+  statusId: string,
+): Promise<Status> {
+  const response = await client.unreblog(statusId);
+  return convertStatus(response.data);
 }
