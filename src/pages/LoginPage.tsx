@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getAuthorizationUrl, getAccessToken } from '../services/mastodon';
@@ -8,8 +8,15 @@ export default function LoginPage() {
   const [code, setCode] = useState('');
   const [authUrl, setAuthUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // 認証情報が既に存在する場合はホームページにリダイレクト
+    if (auth.accessToken && auth.instance) {
+      navigate('/home');
+    }
+  }, [auth.accessToken, auth.instance, navigate]);
 
   const handleGetAuthUrl = async () => {
     if (!instance) return;

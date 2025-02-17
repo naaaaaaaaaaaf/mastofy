@@ -1,13 +1,22 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useColumns } from '../contexts/ColumnContext';
+import { useAuth } from '../contexts/AuthContext';
 import TimelineColumn from '../components/TimelineColumn';
 import { ColumnType } from '../types/column';
 
 export default function HomePage() {
   const { columns, addColumn } = useColumns();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnType, setNewColumnType] = useState<ColumnType>('home');
   const [hashtag, setHashtag] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const handleAddColumn = () => {
     if (newColumnType === 'hashtag' && !hashtag) return;
@@ -28,6 +37,11 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
+      <div className="header">
+        <button className="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
       <div className="columns-container">
         {columns.map((column, index) => (
           <TimelineColumn 
