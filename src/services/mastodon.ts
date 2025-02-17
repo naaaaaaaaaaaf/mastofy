@@ -1,4 +1,5 @@
-import generator from 'megalodon';
+import generator, { MegalodonInterface } from 'megalodon';
+import { Status, Notification } from '../types/timeline';
 
 const CLIENT_NAME = 'Mastofy';
 const SCOPES = ['read', 'write', 'follow', 'push'];
@@ -61,4 +62,65 @@ export async function getAccessToken(
 export function createClient(instance: string, accessToken: string) {
   const normalizedInstance = normalizeInstanceUrl(instance);
   return generator('mastodon', `https://${normalizedInstance}`, accessToken);
+}
+
+function convertStatus(status: any): Status {
+  return {
+    id: status.id,
+    content: status.content,
+    createdAt: status.created_at,
+    account: {
+      id: status.account.id,
+      username: status.account.username,
+      displayName: status.account.display_name,
+      avatarUrl: status.account.avatar,
+    },
+    mediaAttachments: status.media_attachments.map((media: any) => ({
+      id: media.id,
+      type: media.type,
+      url: media.url,
+      previewUrl: media.preview_url,
+    })),
+    reblog: status.reblog ? convertStatus(status.reblog) : null,
+  };
+}
+
+function convertNotification(notification: any): Notification {
+  return {
+    id: notification.id,
+    type: notification.type,
+    createdAt: notification.created_at,
+    account: {
+      id: notification.account.id,
+      username: notification.account.username,
+      displayName: notification.account.display_name,
+      avatarUrl: notification.account.avatar,
+    },
+    status: notification.status ? convertStatus(notification.status) : undefined,
+  };
+}
+
+export async function getHomeTimeline(client: MegalodonInterface): Promise<Status[]> {
+  const response = await client.getHomeTimeline();
+  return response.data.map(convertStatus);
+}
+
+export async function getLocalTimeline(client: MegalodonInterface): Promise<Status[]> {
+  const response = await client.getLocalTimeline();
+  return response.data.map(convertStatus);
+}
+
+export async function getPublicTimeline(client: MegalodonInterface): Promise<Status[]> {
+  const response = await client.getPublicTimeline();
+  return response.data.map(convertStatus);
+}
+
+export async function getNotifications(client: MegalodonInterface): Promise<Notification[]> {
+  const response = await client.getNotifications();
+  return response.data.map(convertNotification);
+}
+
+export async function getHashtagTimeline(client: MegalodonInterface, hashtag: string): Promise<Status[]> {
+  const response = await client.getTagTimeline(hashtag);
+  return response.data.map(convertStatus);
 }
