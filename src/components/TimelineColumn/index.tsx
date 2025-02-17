@@ -14,8 +14,6 @@ interface ColumnProps {
   isLast: boolean;
 }
 
-const UPDATE_INTERVAL = 30000; // 30秒ごとに更新
-
 export default function TimelineColumn({ column, index, isFirst, isLast }: ColumnProps) {
   const [items, setItems] = useState<(Status | Notification)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -151,13 +149,13 @@ export default function TimelineColumn({ column, index, isFirst, isLast }: Colum
               <span className="username">@{item.account.username}</span>
             </div>
             <span className="notification-type">{item.type}</span>
-            {item.status && <StatusItem status={item.status} onStatusUpdate={updateStatus} />}
+            {item.status && <StatusItem key={item.status.id} status={item.status} onStatusUpdate={updateStatus} />}
           </div>
         </div>
       );
     } else {
-      // Status
-      return <StatusItem status={item} onStatusUpdate={updateStatus} />;
+      // Status - add type assertion since we know it's a Status at this point
+      return <StatusItem key={item.id} status={item as Status} onStatusUpdate={updateStatus} />;
     }
   };
 

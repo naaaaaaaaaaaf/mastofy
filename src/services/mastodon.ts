@@ -149,14 +149,24 @@ export async function uploadMedia(
   const formData = new FormData();
   formData.append('file', file);
   const response = await client.uploadMedia(formData);
-  return response.data;
+  const data = response.data;
+  
+  if (!data.url) {
+    throw new Error('Media upload failed: No URL returned');
+  }
+  
+  return {
+    id: data.id,
+    url: data.url,
+    preview_url: data.preview_url ?? data.url
+  };
 }
 
 export async function favoriteStatus(
   client: MegalodonInterface,
   statusId: string,
 ): Promise<Status> {
-  const response = await client.favourite(statusId);
+  const response = await client.favouriteStatus(statusId); // Using correct method name
   return convertStatus(response.data);
 }
 
@@ -164,7 +174,7 @@ export async function unfavoriteStatus(
   client: MegalodonInterface,
   statusId: string,
 ): Promise<Status> {
-  const response = await client.unfavourite(statusId);
+  const response = await client.unfavouriteStatus(statusId); // Using correct method name
   return convertStatus(response.data);
 }
 
@@ -172,7 +182,7 @@ export async function boostStatus(
   client: MegalodonInterface,
   statusId: string,
 ): Promise<Status> {
-  const response = await client.reblog(statusId);
+  const response = await client.reblogStatus(statusId); // Using correct method name
   return convertStatus(response.data);
 }
 
@@ -180,6 +190,6 @@ export async function unboostStatus(
   client: MegalodonInterface,
   statusId: string,
 ): Promise<Status> {
-  const response = await client.unreblog(statusId);
+  const response = await client.unreblogStatus(statusId); // Using correct method name
   return convertStatus(response.data);
 }
