@@ -74,6 +74,7 @@ function convertStatus(status: any): Status {
       username: status.account.username,
       displayName: status.account.display_name,
       avatarUrl: status.account.avatar,
+      acct: status.account.acct || `${status.account.username}@${new URL(status.account.url).hostname}`
     },
     mediaAttachments: status.media_attachments.map((media: any) => ({
       id: media.id,
@@ -82,11 +83,12 @@ function convertStatus(status: any): Status {
       previewUrl: media.preview_url,
     })),
     reblog: status.reblog ? convertStatus(status.reblog) : null,
-    // Add reaction fields
     favorited: status.favourited || false,
     reblogged: status.reblogged || false,
     favouritesCount: status.favourites_count || 0,
     reblogsCount: status.reblogs_count || 0,
+    spoilerText: status.spoiler_text || '',
+    sensitive: status.sensitive || false
   };
 }
 

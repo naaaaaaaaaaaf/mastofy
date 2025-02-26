@@ -1,0 +1,323 @@
+.status-item {
+  padding: 1rem;
+  border-bottom: 1px solid #e1e8ed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.boost-indicator {
+  font-size: 0.85em;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 3.25rem;
+  margin-bottom: -0.25rem;
+  line-height: 1.2;
+}
+
+.boost-icon {
+  color: #17bf63;
+  flex-shrink: 0;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.boost-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-main {
+  display: flex;
+  gap: 0.75rem;
+  min-width: 0; /* Flexboxでの収縮を許可 */
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0; /* アバターのサイズを固定 */
+}
+
+.status-content {
+  flex: 1;
+  min-width: 0; /* コンテンツの収縮を許可 */
+  overflow-wrap: break-word; /* 長い単語を折り返す */
+}
+
+.content {
+  word-break: break-word; /* 必要に応じて単語の途中で折り返す */
+  overflow-wrap: break-word;
+}
+
+.status-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.display-name-container {
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+.display-name, .username {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.display-name {
+  font-weight: bold;
+  flex-shrink: 0;
+  max-width: 50%;
+}
+
+.username {
+  color: #666;
+  font-size: 0.9em;
+  flex-shrink: 1;
+}
+
+.timestamp {
+  color: #666;
+  font-size: 0.9em;
+  white-space: nowrap;  /* 時刻を1行に保つ */
+  flex-shrink: 0;       /* 時刻の幅を固定 */
+  margin-left: 0.5rem;  /* ユーザー名との間隔 */
+}
+
+.content-warning {
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: #f8f9fa;
+}
+
+.spoiler-text {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.toggle-cw-button {
+  background: none;
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9em;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-cw-button:hover {
+  background: #eee;
+  border-color: #666;
+}
+
+.media-attachments {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.media-attachments.sensitive {
+  filter: blur(30px);
+  transition: filter 0.2s ease;
+}
+
+.media-attachments.sensitive:hover {
+  filter: blur(20px);
+}
+
+.media-attachment-container {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #eee;
+}
+
+.media-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.media-preview:hover {
+  transform: scale(1.02);
+}
+
+.sensitive-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.sensitive-overlay button {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.sensitive-overlay button:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+.status-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background: rgba(23, 191, 99, 0.1);
+}
+
+.action-button.active {
+  color: #17bf63;
+}
+
+.favorite-button.active {
+  color: #e0245e;
+}
+
+.favorite-button:hover {
+  background: rgba(224, 36, 94, 0.1);
+}
+
+.boost-button.active {
+  color: #17bf63;
+}
+
+.count {
+  font-size: 0.9em;
+  min-width: 1em;
+  text-align: start;
+}
+
+.media-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.media-modal {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.expanded-media {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid #e1e8ed;
+  display: flex;
+  gap: 1rem;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0; /* Flexboxでの収縮を許可 */
+}
+
+.notification-type {
+  display: inline-block;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: #f5f8fa;
+  border-radius: 4px;
+  white-space: nowrap;
+}
